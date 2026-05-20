@@ -124,5 +124,13 @@
       "seeds": "td:nth-child(6)",
       "peers": "td:nth-child(7)"
     }
+  },
+  "commented_bitlord": {
+    "name": "BitLord Power Search (Unqualified/Flutter Canvas)",
+    "url": "https://bitlordsearch.com/#/?q={{query}}",
+    "list": "none",
+    "result": {
+      "name": "Unscrapable: Built entirely with Flutter Web (CanvasKit/WebGL renderer). The browser renders dynamically onto a `<canvas>` node without standard semantic HTML tags in the DOM. Therefore, it is fundamentally incompatible with the Go scraper engine."
+    }
   }
 }
