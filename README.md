@@ -108,6 +108,36 @@ $ cloud-torrent --help
 
 ```
 
+### Seed Extractor & Integrator CLI
+
+`cloud-torrent-ex` includes a dedicated Python seed extractor CLI (`scripts/seed_extractor.py`) to easily pass seeds (magnets, infohashes, torrent file URLs, or local `.torrent` files) to the running daemon. It also supports querying the daemon's active search providers, auto-selecting the best result (with the highest seed count), and queueing it.
+
+#### Usage
+
+Run the seed extractor from the project root:
+
+```sh
+# Push a raw magnet URI directly
+$ python3 scripts/seed_extractor.py --magnet "magnet:?xt=urn:btih:..."
+
+# Load a torrent file from a remote URL
+$ python3 scripts/seed_extractor.py --url "https://example.com/file.torrent"
+
+# Upload a local torrent file
+$ python3 scripts/seed_extractor.py --file "/path/to/local.torrent"
+
+# Load a raw 40-character hex infohash (auto-converts to a tracker-enriched magnet link)
+$ python3 scripts/seed_extractor.py --infohash "45008e48c8800b7d7643337b2e70a634e4c69f6a"
+
+# Auto-query active providers (e.g. Nyaa), pick the top-seeded torrent, and load it
+$ python3 scripts/seed_extractor.py --search "ubuntu" --provider nyaa
+```
+
+To target a non-default server URL, pass the `--server` option:
+```sh
+$ python3 scripts/seed_extractor.py --search "debian" --server "http://localhost:3006"
+```
+
 ### Future features
 
 The next set of [core features can be tracked here](https://github.com/jpillora/cloud-torrent/issues?q=is%3Aopen+is%3Aissue+label%3Acore-feature). This feature set requires large structural changes and therefore requires a complete rewrite for best results. This rewrite is in progress in the `0.9` branch though it will take quite some time.
