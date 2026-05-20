@@ -1,0 +1,76 @@
+/* Automated Seed Extractor Panel Styles */
+
+.seed-extractor-panel {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  margin-top: 15px !important;
+  margin-bottom: 20px !important;
+}
+
+.seed-extractor-panel .menu .item {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #718096 !important;
+  border-bottom-width: 2px !important;
+}
+
+.seed-extractor-panel .menu .item:hover {
+  color: #4a5568 !important;
+  background: rgba(243, 244, 246, 0.6) !important;
+  border-radius: 6px 6px 0 0;
+}
+
+.seed-extractor-panel .menu .item.active {
+  color: #4f46e5 !important;
+  border-color: #6366f1 !important;
+}
+
+.seed-extractor-panel input[type="text"] {
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #cbd5e1 !important;
+  font-family: inherit;
+}
+
+.seed-extractor-panel input[type="text"]:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+  background-color: #fff !important;
+}
+
+.seed-extractor-panel .ui.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.seed-extractor-panel .ui.card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+}
+
+.seed-extractor-panel .buttons .button {
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.1) !important;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.seed-extractor-panel .buttons .button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(99, 102, 241, 0.15) !important;
+}
+
+.seed-extractor-panel .buttons .button:active {
+  transform: translateY(0);
+}
+
+.seed-extractor-panel .message {
+  animation: slideInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

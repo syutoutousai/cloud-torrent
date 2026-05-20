@@ -1,0 +1,115 @@
+<form ng-show="edit" class="ui segment edit form seed-extractor-panel" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: linear-gradient(145deg, #ffffff, #fbfbfb); border: 1px solid #e2e8f0;">
+  <h4 class="ui dividing header" style="color: #4f46e5; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
+    <i class="magic icon" style="color: #6366f1;"></i> Automated Seed Extractor & Quality Audit
+  </h4>
+
+  <!-- Tabs Navigation -->
+  <div class="ui two item secondary pointing menu" style="margin-bottom: 20px; border-bottom: 2px solid #edf2f7;">
+    <a class="item" ng-class="{active: activeTab === 'query'}" ng-click="selectTab('query')" style="font-weight: 600; padding: 12px 0;">
+      <i class="search icon" style="margin-right: 6px;"></i> Auto-Extract Query
+    </a>
+    <a class="item" ng-class="{active: activeTab === 'enrich'}" ng-click="selectTab('enrich')" style="font-weight: 600; padding: 12px 0;">
+      <i class="shield alternate icon" style="margin-right: 6px;"></i> Enrich & Audit Seed
+    </a>
+  </div>
+
+  <!-- Tab 1: Auto-Extract Search Query -->
+  <div ng-show="activeTab === 'query'" class="extractor-tab-content">
+    <div class="ui info message" style="background-color: #f5f3ff; border-left: 5px solid #8b5cf6; color: #5b21b6; border-radius: 6px; padding: 1em 1.5em; font-size: 0.9em;">
+      <p><i class="lightbulb outline icon"></i> <strong>Search & Auto-Extract:</strong> Enter your search topic, select a provider, and click <strong>Extract Top Seed</strong>. The system will automatically fetch results, identify the healthier candidate with the highest seeders, and immediately queue it for download.</p>
+    </div>
+
+    <div class="two fields" style="margin-top: 15px;">
+      <div class="twelve wide field">
+        <label style="color: #4a5568; font-weight: 600;">Search Query</label>
+        <div class="ui left icon input">
+          <i class="search icon" style="color: #a0aec0;"></i>
+          <input type="text" ng-model="inputs.searchQuery" ng-change="clearFeedback()" ng-enter="autoExtractBest()" placeholder="e.g. ubuntu desktop" style="border-radius: 6px;">
+        </div>
+      </div>
+      <div class="four wide field" ng-if="providers">
+        <label style="color: #4a5568; font-weight: 600;">Provider</label>
+        <select class="ui dropdown" ng-model="inputs.selectedProvider" style="border-radius: 6px; padding: 0.62em 1em;">
+          <option ng-repeat="(id, p) in providers" value="{{id}}">{{p.name}}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Extraction Feedback Message -->
+    <div ng-if="extractorFeedback" class="ui message" ng-class="{positive: extractorFeedback.ok, negative: !extractorFeedback.ok}" style="border-radius: 6px; margin-top: 15px;">
+      <i class="close icon" ng-click="clearFeedback()"></i>
+      <div class="header" ng-bind="extractorFeedback.title"></div>
+      <p ng-bind="extractorFeedback.message"></p>
+      <div ng-if="extractorFeedback.details" style="font-size: 0.85em; margin-top: 6px; font-family: monospace; color: #4a5568;" ng-bind="extractorFeedback.details"></div>
+    </div>
+
+    <div class="buttons" style="margin-top: 20px;">
+      <div class="ui purple button" ng-class="{loading: autoExtracting, disabled: !inputs.searchQuery || autoExtracting}" ng-click="autoExtractBest()" style="background-color: #6366f1; color: white; border-radius: 6px; transition: all 0.2s ease;">
+        <i class="magic icon"></i> Extract Top Seed
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Seed Ingest, Enrich & Audit -->
+  <div ng-show="activeTab === 'enrich'" class="extractor-tab-content">
+    <div class="field">
+      <label style="color: #4a5568; font-weight: 600;">Seed Input (Infohash / Magnet / Torrent URL)</label>
+      <div class="ui left icon input">
+        <i class="linkify icon" style="color: #a0aec0;"></i>
+        <input type="text" ng-model="inputs.seedInput" ng-change="auditInput(); clearFeedback()" placeholder="Paste a 40-char infohash, a magnet link, or a torrent file HTTP URL" style="border-radius: 6px;">
+      </div>
+    </div>
+
+    <!-- Transparent Quality & Validity Audit Panel -->
+    <div class="ui card" style="width: 100%; border-radius: 8px; border: 1px dashed #cbd5e0; background-color: #f8fafc; box-shadow: none; margin-top: 15px;">
+      <div class="content" style="padding: 14px 18px;">
+        <div class="header" style="font-size: 1em; color: #1e293b; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center;">
+          <i class="shield alternate icon" style="color: #3b82f6; margin-right: 6px;"></i> Seed Quality & Validity Audit
+          <span style="margin-left: auto; font-size: 0.8em; font-weight: normal; color: #64748b;">(Transparent Dev State)</span>
+        </div>
+        
+        <div class="description" style="font-size: 0.9em; color: #334155;">
+          <div style="margin-bottom: 8px;">
+            <strong>Detected Input Type:</strong> 
+            <span class="ui label" ng-class="audit.labelColor" style="font-size: 0.85em; border-radius: 4px; padding: 4px 8px;" ng-bind="audit.type"></span>
+          </div>
+
+          <div style="margin-bottom: 8px; display: flex; align-items: center;">
+            <strong>Format Validity check:</strong>
+            <span style="margin-left: 6px; font-weight: 600;" ng-class="{'ui green text': audit.isValid, 'ui red text': !audit.isValid}">
+              <i class="icon" ng-class="{'check circle': audit.isValid, 'exclamation triangle': !audit.isValid}"></i>
+              {{ audit.statusText }}
+            </span>
+          </div>
+
+          <div ng-if="audit.isValid" style="margin-bottom: 8px; border-top: 1px solid #e2e8f0; padding-top: 8px;">
+            <div style="margin-bottom: 4px;"><strong>Parsed Metadata Parameters:</strong></div>
+            <ul style="margin: 0; padding-left: 20px; font-size: 0.9em; list-style-type: square; color: #475569;">
+              <li ng-if="audit.name">Display Name: <code style="background-color: #e2e8f0; padding: 1px 4px; border-radius: 3px; font-size: 0.9em;">{{ audit.name }}</code></li>
+              <li>Infohash (BTIH): <code style="background-color: #e2e8f0; padding: 1px 4px; border-radius: 3px; font-size: 0.9em;">{{ audit.infohash }}</code></li>
+              <li>Existing Trackers Detected: <span class="ui small circular label" style="padding: 2px 5px;">{{ audit.trackersCount }}</span></li>
+            </ul>
+          </div>
+
+          <!-- Quality Assessment Alert -->
+          <div ng-if="audit.qualityAdvice" class="ui warning mini message" style="border-radius: 6px; padding: 8px 12px; margin-top: 10px; border-left: 4px solid #f59e0b; background-color: #fef3c7; color: #78350f;">
+            <i class="info circle icon"></i> {{ audit.qualityAdvice }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extraction Feedback Message -->
+    <div ng-if="enrichFeedback" class="ui message" ng-class="{positive: enrichFeedback.ok, negative: !enrichFeedback.ok}" style="border-radius: 6px; margin-top: 15px;">
+      <i class="close icon" ng-click="clearFeedback()"></i>
+      <div class="header" ng-bind="enrichFeedback.title"></div>
+      <p ng-bind="enrichFeedback.message"></p>
+    </div>
+
+    <div class="buttons" style="margin-top: 20px;">
+      <div class="ui blue button" ng-class="{loading: apiing, disabled: !audit.isValid || apiing}" ng-click="enrichAndLoad()" style="background-color: #2563eb; color: white; border-radius: 6px; transition: all 0.2s ease;">
+        <i class="cloud upload icon"></i> Enrich & Load Seed
+      </div>
+    </div>
+  </div>
+</form>
