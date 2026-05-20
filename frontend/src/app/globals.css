@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+:root {
+  --background: 240 10% 4%;
+  --foreground: 210 20% 98%;
+  --primary: 190 100% 50%;
+  --accent: 350 100% 55%;
+  --card: 240 10% 8%;
+  --border: 240 10% 12%;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-accent: hsl(var(--accent));
+  --color-card: hsl(var(--card));
+  --color-border: hsl(var(--border));
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+.glow-blue:hover {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+  border-color: hsl(var(--primary));
+}
