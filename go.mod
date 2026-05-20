@@ -122,3 +122,5 @@ require (
 	modernc.org/sqlite v1.34.1 // indirect
 	zombiezen.com/go/sqlite v1.4.0 // indirect
 )
+
+replace github.com/anacrolix/go-libutp v1.3.1 => github.com/anacrolix/go-libutp v1.3.2
