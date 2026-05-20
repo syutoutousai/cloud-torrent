@@ -132,6 +132,13 @@ Once completed, cloud-torrent will no longer be a simple torrent client and most
 
 If you'd like to buy me a coffee or more, you can donate via [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=dev%40jpillora%2ecom&lc=AU&item_name=Open%20Source%20Donation&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted) or BitCoin `1AxEWoz121JSC3rV8e9MkaN9GAc5Jxvs4`.
 
+### Known Issues
+
+* **Audio Playback "No Audio" Glitch for MKV/MP4 files (AC-3 / DTS Codecs)**:
+  * When streaming video files (such as `.mkv` or `.mp4` containing AC-3 or DTS audio streams) directly via the built-in web browser player, the video plays successfully but there is **no audio**.
+  * **Root Cause**: This is a browser-level limitation. Web browsers (Chrome, Firefox, Safari, Edge) do not natively support AC-3 or DTS audio codecs due to licensing costs and patent restrictions.
+  * **Workaround**: Download the file locally or copy the stream link to a local video player (such as **VLC**, **PotPlayer**, **IINA**, or **ExoPlayer** on Android) that natively supports AC-3/DTS decoding.
+
 ### Notes
 
 This project is the rewrite of the original [Node version](https://github.com/jpillora/node-torrent-cloud).
