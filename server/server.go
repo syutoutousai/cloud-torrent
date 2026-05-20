@@ -93,6 +93,7 @@ func (s *Server) Run(version string) error {
 	s.scraperh = http.StripPrefix("/search", s.scraper)
 	//torrent engine
 	s.engine = engine.New()
+	s.engine.SetStatePath("torrents.json")
 	//configure engine
 	c := engine.Config{
 		DownloadDirectory: "./downloads",
@@ -113,6 +114,10 @@ func (s *Server) Run(version string) error {
 	}
 	if err := s.reconfigure(c); err != nil {
 		return fmt.Errorf("initial configure failed: %s", err)
+	}
+	//load state after engine is configured
+	if err := s.engine.LoadState(); err != nil {
+		log.Printf("Load torrent state error: %s", err)
 	}
 	//poll torrents and files
 	go func() {
@@ -160,6 +165,17 @@ func (s *Server) Run(version string) error {
 	minSize := 0 //IMPORTANT
 	gzipWrap, _ := gziphandler.NewGzipLevelAndMinSize(compression, minSize)
 	h = gzipWrap(h)
+	//disable gzip for sync
+	{
+		oldH := h
+		h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/sync" {
+				s.handle(w, r)
+				return
+			}
+			oldH.ServeHTTP(w, r)
+		})
+	}
 	//auth
 	if s.Auth != "" {
 		user := s.Auth
@@ -244,5 +260,8 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//no match, assume static file
+	if r.URL.Path == "/" || r.URL.Path == "/index.html" {
+		go s.fetchSearchConfig()
+	}
 	s.files.ServeHTTP(w, r)
 }

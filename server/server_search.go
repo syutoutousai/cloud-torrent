@@ -7,23 +7,14 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/jpillora/backoff"
 )
 
 const searchConfigURL = "https://gist.githubusercontent.com/jpillora/4d945b46b3025843b066adf3d685be6b/raw/scraper-config.json"
 
 func (s *Server) fetchSearchConfigLoop() {
-	b := backoff.Backoff{Max: 30 * time.Minute}
 	for {
-		if err := s.fetchSearchConfig(); err != nil {
-			//ignore error
-			time.Sleep(b.Duration())
-		} else {
-			//no errror - check again in half hour
-			time.Sleep(30 * time.Minute)
-			b.Reset()
-		}
+		s.fetchSearchConfig()
+		time.Sleep(5 * time.Second)
 	}
 }
 
@@ -31,6 +22,24 @@ var fetches = 0
 var currentConfig, _ = normalize(defaultSearchConfig)
 
 func (s *Server) fetchSearchConfig() error {
+	// 1. Try local providers.json first
+	localConfig, err := ioutil.ReadFile("providers.json")
+	if err == nil {
+		localConfig, err = normalize(localConfig)
+		if err == nil {
+			if !bytes.Equal(currentConfig, localConfig) {
+				if err := s.scraper.LoadConfig(localConfig); err == nil {
+					s.state.SearchProviders = s.scraper.Config
+					s.state.Push()
+					currentConfig = localConfig
+					log.Printf("Loaded search providers from local providers.json")
+				}
+			}
+			return nil
+		}
+	}
+
+	// 2. Fallback to remote gist
 	resp, err := http.Get(searchConfigURL)
 	if err != nil {
 		return err
@@ -54,7 +63,7 @@ func (s *Server) fetchSearchConfig() error {
 	s.state.SearchProviders = s.scraper.Config
 	s.state.Push()
 	currentConfig = newConfig
-	log.Printf("Loaded new search providers")
+	log.Printf("Loaded new search providers from remote gist")
 	return nil
 }
 

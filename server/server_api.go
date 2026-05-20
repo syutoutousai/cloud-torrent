@@ -115,6 +115,16 @@ func (s *Server) api(r *http.Request) error {
 		} else {
 			return fmt.Errorf("Invalid state: %s", state)
 		}
+	case "sequential":
+		cmd := strings.SplitN(string(data), ":", 2)
+		if len(cmd) != 2 {
+			return fmt.Errorf("Invalid request")
+		}
+		infohash := cmd[1]
+		enabled := cmd[0] == "true"
+		if err := s.engine.SetSequential(infohash, enabled); err != nil {
+			return err
+		}
 	default:
 		return fmt.Errorf("Invalid action: %s", action)
 	}

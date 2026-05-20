@@ -1,0 +1,40 @@
+{
+	"tpb": {
+		"name": "The Pirate Bay",
+		"url": "https://tpb.party/search/{{query}}/{{page:1}}/99/0",
+		"list": "table#searchResult tbody tr",
+		"result": {
+			"name": "td:nth-child(2) a",
+			"url": ["td:nth-child(2) a", "@href"],
+			"magnet": ["td:nth-child(4) a[href^=\"magnet:?\"]", "@href"],
+			"size": "td:nth-child(5)",
+			"seeds": "td:nth-child(6)",
+			"peers": "td:nth-child(7)"
+		}
+	},
+	"nyaa": {
+		"name": "Nyaa",
+		"url": "https://nyaa.si/?f=0&c=0_0&q={{query}}&p={{page:1}}",
+		"list": "table.torrent-list tbody tr",
+		"result": {
+			"name": ["td:nth-child(2) a:last-child", "text"],
+			"url": ["td:nth-child(2) a:last-child", "@href"],
+			"magnet": ["td:nth-child(3) a:nth-child(2)", "@href"],
+			"size": "td:nth-child(4)",
+			"seeds": "td:nth-child(6)",
+			"peers": "td:nth-child(7)"
+		}
+	},
+	"1337x": {
+		"name": "1337X",
+		"url": "https://1337xto.to/search/{{query}}/{{page:1}}/",
+		"list": "table.table-list tbody tr",
+		"result": {
+			"name": ".coll-1 a:last-child",
+			"url": [".coll-1 a:last-child", "@href"],
+			"seeds": ".coll-2",
+			"peers": ".coll-3",
+			"size": ".coll-4"
+		}
+	}
+}

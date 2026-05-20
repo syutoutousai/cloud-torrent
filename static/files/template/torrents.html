@@ -41,6 +41,9 @@
             <a class="ui button" ng-class="{blue: t.$showFiles}" ng-click="t.$showFiles = !t.$showFiles">
               <i class="file icon"></i> Files
             </a>
+            <a class="ui button" ng-click="submit('sequential', (t.Sequential ? 'false' : 'true') + ':' + hash); t.Sequential = !t.Sequential" ng-class="{orange: t.Sequential}">
+              <i class="exchange icon"></i> JIT
+            </a>
             <a ng-disabled="t.Started" class="ui button" ng-class="{green: !t.Started}" ng-click="submitTorrent('start', t)">
               <i class="cloud download icon"></i> Start
             </a>
@@ -87,6 +90,9 @@
               <td class="name">
                 <div>
                   <span>{{ f.Path | filename }}</span>
+                  <a title="JIT Stream" ng-href="/api/stream/{{ hash }}/{{ f.Path }}" target="_blank" style="margin-left: 5px;">
+                    <i class="play circle outline icon"></i>
+                  </a>
                   <span class="percent" ng-if="f.Percent > 0 && f.Percent < 100">{{ f.Percent }}% </span>
                   <div ng-if="f.Percent > 0 && f.Percent < 100" class="ui blue active progress">
                     <div class="bar" ng-style="{width: f.Percent + '%'}">

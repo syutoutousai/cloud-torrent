@@ -18,6 +18,7 @@ type stats struct {
 	MemoryTotal int64   `json:"memoryTotal"`
 	GoMemory    int64   `json:"goMemory"`
 	GoRoutines  int     `json:"goRoutines"`
+	GoVersion   string  `json:"goVersion"`
 	//internal
 	pusher velox.Pusher
 }
@@ -43,6 +44,7 @@ func (s *stats) loadStats(diskDir string) {
 	s.GoMemory = int64(memStats.Alloc)
 	//count current number of goroutines
 	s.GoRoutines = runtime.NumGoroutine()
+	s.GoVersion = runtime.Version()
 	//done
 	s.Set = true
 	s.pusher.Push()

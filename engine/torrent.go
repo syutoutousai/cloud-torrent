@@ -16,6 +16,7 @@ type Torrent struct {
 	Files      []*File
 	//cloud torrent
 	Started      bool
+	Sequential   bool
 	Dropped      bool
 	Percent      float32
 	DownloadRate float32
@@ -33,6 +34,10 @@ type File struct {
 	Started bool
 	Percent float32
 	f       *torrent.File
+}
+
+func (f *File) AnacrolixFile() *torrent.File {
+	return f.f
 }
 
 func (torrent *Torrent) Update(t *torrent.Torrent) {
@@ -94,6 +99,14 @@ func (torrent *Torrent) updateLoaded(t *torrent.Torrent) {
 	}
 	torrent.Downloaded = bytes
 	torrent.updatedAt = now
+}
+
+func (torrent *Torrent) UpdatedAt() time.Time {
+	return torrent.updatedAt
+}
+
+func (torrent *Torrent) SetSequential(enabled bool) {
+	torrent.Sequential = enabled
 }
 
 func percent(n, total int64) float32 {

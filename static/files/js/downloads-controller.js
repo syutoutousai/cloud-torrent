@@ -29,38 +29,9 @@ app.controller("NodeController", function($scope, $rootScope, $http, $timeout) {
   }
   var path = (n.$path = pathArray.join("/"));
   n.$closed = $scope.agoHrs(n.Modified) > 24;
-  $scope.audioPreview = /\.(mp3|m4a)$/.test(path);
-  $scope.imagePreview = /\.(jpe?g|png|gif)$/.test(path);
-  $scope.videoPreview = /\.(mp4|mkv|mov)$/.test(path);
-
-  //search for this file
-  var torrents = $rootScope.state.Torrents;
-  if ($scope.isfile() && torrents) {
-    for (var ih in torrents) {
-      var torrent = torrents[ih];
-      var files = torrent.Files;
-      if (files) {
-        for (var i = 0; i < files.length; i++) {
-          var f = files[i];
-          if (f.Path === path) {
-            n.$torrent = torrent;
-            n.$file = f;
-            break;
-          }
-        }
-      }
-      if (n.$file) break;
-    }
-  }
 
   $scope.isdownloading = function() {
-    return (
-      n.$torrent &&
-      n.$torrent.Loaded &&
-      n.$torrent.Started &&
-      n.$file &&
-      n.$file.Percent < 100
-    );
+    return false; // V1 fallback or default logic
   };
 
   $scope.preremove = function() {
@@ -79,19 +50,12 @@ app.controller("NodeController", function($scope, $rootScope, $http, $timeout) {
   };
   $scope.icon = function() {
     var c = [];
-    if ($scope.isdownloading()) {
-      c.push("spinner", "loading");
+    c.push("outline");
+    if ($scope.isfile()) {
+      c.push("file");
     } else {
-      c.push("outline");
-      if ($scope.isfile()) {
-        if ($scope.audioPreview) c.push("audio");
-        else if ($scope.imagePreview) c.push("image");
-        else if ($scope.videoPreview || /\.(avi)$/.test(path)) c.push("video");
-        c.push("file");
-      } else {
-        c.push("folder");
-        if (!$scope.closed()) c.push("open");
-      }
+      c.push("folder");
+      if (!$scope.closed()) c.push("open");
     }
     c.push("icon");
     return c.join(" ");
@@ -99,9 +63,5 @@ app.controller("NodeController", function($scope, $rootScope, $http, $timeout) {
 
   $scope.remove = function() {
     $http.delete("download/" + n.$path);
-  };
-
-  $scope.togglePreview = function() {
-    $scope.showPreview = !$scope.showPreview;
   };
 });

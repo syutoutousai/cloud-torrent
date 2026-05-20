@@ -2,7 +2,9 @@ package engine
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
@@ -19,6 +21,7 @@ type Engine struct {
 	client   *torrent.Client
 	config   Config
 	ts       map[string]*Torrent
+	statePath string
 }
 
 func New() *Engine {
@@ -57,12 +60,58 @@ func (e *Engine) Configure(c Config) error {
 	return nil
 }
 
+func (e *Engine) SetStatePath(path string) {
+	e.statePath = path
+}
+
+func (e *Engine) SaveState() {
+	if e.statePath == "" {
+		return
+	}
+	e.mut.Lock()
+	defer e.mut.Unlock()
+	magnets := []string{}
+	for _, t := range e.ts {
+		if t.t != nil {
+			ih := t.t.InfoHash()
+			magnets = append(magnets, t.t.Metainfo().Magnet(&ih, nil).String())
+		}
+	}
+	b, _ := json.MarshalIndent(magnets, "", "  ")
+	ioutil.WriteFile(e.statePath, b, 0644)
+}
+
+func (e *Engine) LoadState() error {
+	if e.statePath == "" {
+		return nil
+	}
+	b, err := ioutil.ReadFile(e.statePath)
+	if err != nil {
+		return nil
+	}
+	magnets := []string{}
+	if err := json.Unmarshal(b, &magnets); err != nil {
+		return err
+	}
+	for _, m := range magnets {
+		tt, err := e.client.AddMagnet(m)
+		if err == nil {
+			e.newTorrent(tt)
+		}
+	}
+	return nil
+}
+
 func (e *Engine) NewMagnet(magnetURI string) error {
 	tt, err := e.client.AddMagnet(magnetURI)
 	if err != nil {
 		return err
 	}
-	return e.newTorrent(tt)
+	err = e.newTorrent(tt)
+	if err == nil {
+		e.SaveState()
+	}
+	return err
 }
 
 func (e *Engine) NewTorrent(spec *torrent.TorrentSpec) error {
@@ -70,7 +119,11 @@ func (e *Engine) NewTorrent(spec *torrent.TorrentSpec) error {
 	if err != nil {
 		return err
 	}
-	return e.newTorrent(tt)
+	err = e.newTorrent(tt)
+	if err == nil {
+		e.SaveState()
+	}
+	return err
 }
 
 func (e *Engine) newTorrent(tt *torrent.Torrent) error {
@@ -179,6 +232,7 @@ func (e *Engine) DeleteTorrent(infohash string) error {
 	if tt, ok := e.client.Torrent(ih); ok {
 		tt.Drop()
 	}
+	e.SaveState()
 	return nil
 }
 
@@ -202,6 +256,15 @@ func (e *Engine) StartFile(infohash, filepath string) error {
 	}
 	t.Started = true
 	f.Started = true
+	return nil
+}
+
+func (e *Engine) SetSequential(infohash string, enabled bool) error {
+	t, err := e.getOpenTorrent(infohash)
+	if err != nil {
+		return err
+	}
+	t.SetSequential(enabled)
 	return nil
 }
 
