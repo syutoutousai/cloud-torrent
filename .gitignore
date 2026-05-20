@@ -3,3 +3,6 @@ cloud-torrent.json
 tmp/
 dev.sh
 dist/
+cloud-torrent-ex
+config.json
+DONT_TOUCH_FEATURES_TO_DEV_FROM_USER.md
